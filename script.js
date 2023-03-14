@@ -122,7 +122,6 @@ function sortByOption() {
         pageNum.innerHTML = params.page;
         params.sort = "";
         params.order = "";
-        params.category = "";
         let newApi = getNewApi();
         getItemByApi(newApi, renderProducts);
     }
