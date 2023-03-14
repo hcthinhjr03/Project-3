@@ -79,6 +79,8 @@ function renderProducts(product) {
 
 function getProductByCategory(category) {
     params.category = category;
+    params.page = 1;
+    pageNum.innerHTML = params.page;
     let newApi = getNewApi();
     getItemByApi(newApi, renderProducts);
 }
