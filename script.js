@@ -106,6 +106,8 @@ function searchItemByTitle() {
     searchBtn.addEventListener("click", function() {
         var name = document.querySelector('input[name="title"]').value;
         params.q = name;
+        params.page = 1;
+        pageNum.innerHTML = params.page;
         let newApi = getNewApi();
         getItemByApi(newApi, renderProducts);
     })
@@ -115,6 +117,7 @@ function sortByOption() {
     let pickOption = option.value;
     if(pickOption == 'default') {
         params.page = 1;
+        pageNum.innerHTML = params.page;
         params.sort = "";
         params.order = "";
         params.category = "";
