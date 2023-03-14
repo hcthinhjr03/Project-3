@@ -1,30 +1,38 @@
 
-var productApi = 'http://localhost:3000/products';
-var categoryApi = 'https://dummyjson.com/products/categories';
+const productApi = 'http://localhost:3000/products';
+const categoryApi = 'https://dummyjson.com/products/categories';
+const listCategories = document.querySelector('#categories');
+const listProducts = document.querySelector('#products');
+const searchBtn = document.querySelector('#search');
+const option = document.querySelector('#optional');
+const prevBtn = document.querySelector('#prevBtn');
+const nextBtn = document.querySelector('#nextBtn');
+const pageNum = document.querySelector('#pageNum');
+
+let params = {
+    sort: "",
+    order: "",
+    page: "1",
+    limit: "12",
+    q: "",
+    category: "",
+};
+
+function getNewApi() {
+    let category = "";
+    if(params.category != "") {
+        category = `&category=${params.category}`
+    }
+    let newApi = `${productApi}?_sort=${params.sort}&_order=${params.order}&_page=${params.page}&_limit=${params.limit}&q=${params.q}${category}`;
+    return newApi;
+}
 
 function start() {
     getItemByApi(categoryApi, renderCategories);
-    getItemByApi(productApi + '?_page=1&_limit=12', renderProducts);
-    const prevBtn = document.querySelector('#prevBtn');
-    const nextBtn = document.querySelector('#nextBtn');
-    const pageNum = document.querySelector('#pageNum');
-
-    var page = 1;
-    pageNum.innerHTML = page;
-
-    nextBtn.addEventListener('click', function() {
-        page++;
-        pageNum.innerHTML = page;
-        getItemByApi(productApi + '?_page=' + page + '&_limit=12', renderProducts);
-    })
-
-    prevBtn.addEventListener('click', function() {
-        page--;
-        pageNum.innerHTML = page;
-        getItemByApi(productApi + '?_page=' + page + '&_limit=12', renderProducts);
-    })
-    
-    
+    let newApi = getNewApi();
+    getItemByApi(newApi, renderProducts);
+    paginateProduct();
+    searchItemByTitle();
 }
 
 start();
@@ -40,7 +48,6 @@ function getItemByApi(api,callback) {
 }
 
 function renderCategories(category) {
-    var listCategories = document.querySelector('#categories');
     let htmls = category.map(function(item) {
         return `
             <li id="category-item" class="inner-item" onclick="getProductByCategory('${item}')">
@@ -53,7 +60,6 @@ function renderCategories(category) {
 }
 
 function renderProducts(product) {
-    var listProducts = document.querySelector('#products');
     let htmls = product.map(function(item) {
         return `
             <div class="inner-product">
@@ -72,33 +78,71 @@ function renderProducts(product) {
 }
 
 function getProductByCategory(category) {
-    let newApi = productApi + '?category=' + category;
+    params.category = category;
+    let newApi = getNewApi();
     getItemByApi(newApi, renderProducts);
 }
 
+function paginateProduct() {
+    
+    pageNum.innerHTML = params.page;
+    nextBtn.addEventListener('click', function() {
+        params.page++;
+        pageNum.innerHTML = params.page;
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
+    })
+
+    prevBtn.addEventListener('click', function() {
+        params.page--;
+        if(params.page < 1) params.page = 1;
+        pageNum.innerHTML = params.page;
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
+    })
+}
 
 function searchItemByTitle() {
-    var searchBtn = document.querySelector('#search');
     searchBtn.addEventListener("click", function() {
         var name = document.querySelector('input[name="title"]').value;
-        let searchApi = productApi + "?title=" + name;
-        getItemByApi(searchApi, renderProducts);
+        params.q = name;
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
     })
 }
 
 function sortByOption() {
-    var option = document.querySelector('#optional');
     let pickOption = option.value;
     if(pickOption == 'default') {
-        getItemByApi(productApi, renderProducts);
+        params.page = 1;
+        params.sort = "";
+        params.order = "";
+        params.category = "";
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
     }
     else if(pickOption == 'highToLow') {
-        getItemByApi(productApi + '?_sort=price&_order=desc', renderProducts);
+        params.page = 1;
+        pageNum.innerHTML = params.page;
+        params.sort = 'price';
+        params.order = 'desc';
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
     }
     else if(pickOption == 'lowToHigh') {
-        getItemByApi(productApi + '?_sort=price&_order=asc', renderProducts);
+        params.page = 1;
+        pageNum.innerHTML = params.page;
+        params.sort = 'price';
+        params.order = 'asc';
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
     }
     else if(pickOption == 'discount') {
-        getItemByApi(productApi + '?_sort=discountPercentage&_order=desc', renderProducts);
+        params.page = 1;
+        pageNum.innerHTML = params.page;
+        params.sort = 'discountPercentage';
+        params.order = 'desc';
+        let newApi = getNewApi();
+        getItemByApi(newApi, renderProducts);
     }
 }
